@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study OS v6.01 — Web Terminal</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="terminal-wrapper">
+        <!-- Khung viền ngoài cùng (Tương tự Main Panel của Rich) -->
+        <div id="outer-frame" class="panel border-cyan main-frame">
+            <div class="panel-title-top-left" id="frame-title-left">Study OS</div>
+            <div class="panel-title-top-right" id="frame-title-right">0 days until 2027-06-01</div>
+
+            <!-- ==================== MÀN HÌNH 1: DASHBOARD ==================== -->
+            <section id="screen-page1" class="screen active">
+                <!-- Header Panel -->
+                <div class="panel border-yellow mb-4">
+                    <div class="header-grid">
+                        <div id="p1-title" class="text-cyan bold">Study OS</div>
+                        <div id="p1-version" class="text-cyan text-right">v6.01</div>
+                        <div id="p1-date" class="text-cyan">THURSDAY • 01 OCTOBER 2026</div>
+                        <div id="p1-clock" class="text-cyan text-right">00:00:00</div>
+                    </div>
+                </div>
+
+                <!-- Quote Panel -->
+                <div class="panel border-yellow mb-4">
+                    <div class="panel-label text-cyan">QUOTES</div>
+                    <div id="p1-quote" class="quote-box text-cyan"></div>
+                </div>
+
+                <!-- Stats Grid (4 Cards) -->
+                <div class="stats-grid mb-4" id="p1-stats-grid"></div>
+
+                <!-- Hint & Quick Actions -->
+                <div class="hint-bar text-cyan">
+                    <button class="btn-Action" onclick="switchScreen('page2')">[S] Sang Trang 2 (Menu)</button>
+                    <button class="btn-Action" onclick="openAimModal()">[9] Đặt Aim Tuần/Tháng</button>
+                    <button class="btn-Action" onclick="exportData()">[↓] Xuất JSON</button>
+                    <label class="btn-Action file-label">
+                        [↑] Nhập JSON
+                        <input type="file" id="import-file" accept=".json" onchange="importData(event)" hidden>
+                    </label>
+                </div>
+            </section>
+
+            <!-- ==================== MÀN HÌNH 2: MENU & TASKS ==================== -->
+            <section id="screen-page2" class="screen">
+                <!-- Quote Panel -->
+                <div class="panel border-green mb-4">
+                    <div class="panel-label text-cyan">Quotes</div>
+                    <div id="p2-quote" class="quote-box text-cyan"></div>
+                </div>
+
+                <div class="page2-layout">
+                    <!-- Menu Panel -->
+                    <div class="panel border-green">
+                        <div class="panel-label text-cyan bold">MENU</div>
+                        <div class="menu-grid">
+                            <button class="menu-item text-cyan" onclick="openAddTaskModal()">1 [+] Thêm task</button>
+                            <button class="menu-item text-cyan" onclick="openTaskListModal('toggle')">2 [v] Tick/Bỏ tick task</button>
+                            <button class="menu-item text-cyan" onclick="openTaskListModal('delete')">3 [x] Xoá task</button>
+                            <button class="menu-item text-cyan" onclick="openTaskListModal('edit')">4 [/] Sửa tên task</button>
+                            <button class="menu-item text-cyan" onclick="openTitleModal()">5 [#] Đổi title</button>
+                            <button class="menu-item text-cyan" onclick="openDateModal()">6 [@] Đổi ngày mục tiêu</button>
+                            <button class="menu-item text-cyan" onclick="switchScreen('calendar')">7 [*] Xem lịch tuần</button>
+                            <button class="menu-item text-cyan" onclick="openTaskListModal('focus')">8 [>] Focus Mode</button>
+                            <button class="menu-item text-yellow" onclick="openAimModal()">9 [%] Đặt Aim tuần/tháng</button>
+                            <button class="menu-item text-dim" onclick="switchScreen('page1')">s [←] Quay lại Trang 1</button>
+                        </div>
+                    </div>
+
+                    <!-- Bảng danh sách Task trực quan trên Web -->
+                    <div class="panel border-cyan">
+                        <div class="panel-label text-cyan bold">DANH SÁCH TASK HIỆN TẠI</div>
+                        <div id="quick-task-list" class="quick-task-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== MÀN HÌNH 3: LỊCH TUẦN ==================== -->
+            <section id="screen-calendar" class="screen">
+                <div class="calendar-grid" id="calendar-grid"></div>
+                <div class="hint-bar mt-4">
+                    <button class="btn-Action" onclick="switchScreen('page2')">[Enter / Esc] Quay lại Menu</button>
+                </div>
+            </section>
+
+            <!-- ==================== MÀN HÌNH 4: FOCUS SESSION ==================== -->
+            <section id="screen-focus" class="screen">
+                <div class="focus-container">
+                    <div id="focus-ornament" class="text-dim mb-2">*</div>
+                    <div id="focus-sep-top" class="focus-sep">+──────────────────────────────────+</div>
+                    <pre id="focus-ascii-timer" class="ascii-timer text-cyan"></pre>
+                    <div id="focus-sep-bot" class="focus-sep">+──────────────────────────────────+</div>
+                    <div id="focus-task-name" class="focus-task-name">Tên Task</div>
+                    <div id="focus-wave" class="text-dim focus-wave"></div>
+                    <div class="focus-controls">
+                        <button class="btn-Action border-green text-green" onclick="finishFocusSession(true)">1: Done [V]</button>
+                        <button class="btn-Action border-yellow text-yellow" onclick="togglePauseFocus()">2: Pause/Resume [||]</button>
+                        <button class="btn-Action border-red text-red" onclick="finishFocusSession(false)">0: Quit [X]</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL DIALOG (DÙNG CHUNG CHO CRUD) ==================== -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <div class="panel border-yellow modal-box">
+            <div class="panel-label text-yellow bold" id="modal-title">THÔNG BÁO</div>
+            <div id="modal-body" class="modal-body"></div>
+            <div id="modal-footer" class="modal-footer"></div>
+        </div>
+    </div>
+
+    <!-- Nạp các file JS theo thứ tự -->
+    <script src="./js/data.js"></script>
+    <script src="./js/focus.js"></script>
+    <script src="./js/app.js"></script>
+</body>
+</html>
